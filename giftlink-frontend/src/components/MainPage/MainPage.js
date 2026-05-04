@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {urlConfig} from '../../config';
 
+import formatDate from '../../utils/formatDate'
+
 function MainPage() {
     const [gifts, setGifts] = useState([]);
     const navigate = useNavigate();
@@ -27,11 +29,6 @@ function MainPage() {
 
     const goToDetailsPage = (productId) => {
       navigate(`/app/product/${productId}`);
-    };
-
-    const formatDate = (timestamp) => {
-      const date = new Date(timestamp * 1000);
-      return date.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' });
     };
 
     const getConditionClass = (condition) => {
