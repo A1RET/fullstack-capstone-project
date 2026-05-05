@@ -1,20 +1,54 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { urlConfig } from '../../config';
+import { useAppContext } from '../../context/AuthContext';
 
 import './RegisterPage.css';
 
 function RegisterPage() {
-
-	//insert code here to create useState hook variables for firstName, lastName, email, password
-	const [firstFrame, setFirstName] = useState('');
+	const [firstName, setFirstName] = useState('');
 	const [lastName, setLastName] = useState('');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const [showerr, setShowerr] = useState('');
 
-	// insert code here to create handleRegister function and include console.log
-	function handleRegister() {
-		if (firstFrame === '' || lastName === '' || email === '' || password === '')
+	const navigate = useNavigate();
+	const { setIsLoggedIn } = useAppContext();
+
+	async function handleRegister() {
+		if (firstName === '' || lastName === '' || email === '' || password === '')
 			return;
-		console.log(firstFrame, lastName, email);
+
+		try{
+			const response = await fetch(`${urlConfig.backendUrl}/api/auth/register`, {
+				method: "POST",
+				headers: {
+					'content-type': 'application/json',
+				},
+				body: JSON.stringify({
+					firstName,
+					lastName,
+					email,
+					password
+				})
+			})
+
+			const json = await response.json();
+			if (json.authtoken) {
+				sessionStorage.setItem('auth-token', json.authtoken);
+				sessionStorage.setItem('name', firstName);
+				sessionStorage.setItem('email', json.email);
+				setIsLoggedIn(true);
+				navigate('/app')
+			}
+
+			if (json.error) {
+				setShowerr(json.error);
+			}
+
+		} catch (e) {
+			console.log("Error fetching details: " + e.message);
+		}
 	}
 
 	return (
@@ -25,7 +59,7 @@ function RegisterPage() {
 						<h2 className="text-center mb-4 font-weight-bold">Register</h2>
 						<div className="mb-4">
 							<label htmlFor="firstName" className="form label"> FirstName</label><br />
-							<input id="firstName" type="text" placeholder="First Name" value={firstFrame}
+							<input id="firstName" type="text" placeholder="First Name" value={firstName}
 								onChange={(e) => setFirstName(e.target.value)} className="form-control" />
 						</div>
 
@@ -38,6 +72,7 @@ function RegisterPage() {
 						<div className="mb-4">
 							<label htmlFor="email" className="form label"> Email</label><br />
 							<input id="email" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="form-control" />
+							<div className="text-danger">{showerr}</div>
 						</div>
 
 						<div className="mb-4">

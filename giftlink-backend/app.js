@@ -32,6 +32,8 @@ app.use(pinoHttp({ logger }));
 app.use('/api/gifts', giftRoutes);
 app.use('/api/search', searchRoutes);
 
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
